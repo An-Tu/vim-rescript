@@ -40,6 +40,7 @@ server/analysis_binaries/README.md
 # We need to vendor node_modules and all the executables
 !server/**/node_modules/
 !server/analysis_binaries/darwin/rescript-editor-analysis.exe
+!server/analysis_binaries/darwinarm64/rescript-editor-analysis.exe
 !server/analysis_binaries/linux/rescript-editor-analysis.exe
 !server/analysis_binaries/win32/rescript-editor-analysis.exe
 
