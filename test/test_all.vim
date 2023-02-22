@@ -30,7 +30,9 @@ function! InitTest()
   " This test fails if the initialization doesn't set the right
   " binary paths correctly (depending on the platform)
 
-  if has('macunix')
+  if system('arch') == "arm64"
+    let s:rescript_arch = "darwinarm64"
+  elseif has('macunix')
     let l:platform = "darwin"
   elseif has('win32')
     let l:platform = "win32"

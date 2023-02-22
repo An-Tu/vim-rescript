@@ -63,7 +63,9 @@ endfunction
 " Inits the plugin variables, e.g. finding all the plugin related binaries
 " and initialising some internal state for UI (error window etc.)
 function! rescript#Init()
-  if has('macunix')
+  if system('arch') == "arm64"
+    let s:rescript_arch = "darwinarm64"
+  elseif has('macunix')
     let s:rescript_arch = "darwin"
   elseif has('win32')
     let s:rescript_arch = "win32"
