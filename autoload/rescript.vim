@@ -556,3 +556,144 @@ function! rescript#Info()
 
   echo "Bundled rescript server version: " . rescript#GetRescriptServerVersion()
 endfunction
+
+function! rescript#GetBsConfigContent()
+  return json_decode(join(readfile(g:rescript_project_config)))
+endfunction
+
+function! rescript#ToCamelCase(str_to_replace)
+  let l:res =  substitute(a:str_to_replace, '\v<(.)(\w*)', '\u\1\L\2', 'g')
+  let l:res =  substitute(l:res, '[\ -]', '', 'g')
+  return l:res
+endfunction
+
+function! rescript#CreteIntfFile()
+  let l:ext = expand("%:e")
+
+  if l:ext !=# "res"
+    echo "Current buffer is not a .res file... Do nothing."
+    return
+  endif
+
+  call rescript#UpdateProjectEnv()
+
+  let l:current_file_path = expand("%:p")
+  let l:interface_file_path = l:current_file_path . "i"
+
+  if !empty(expand(glob(l:interface_file_path)))
+    execute "e " . l:interface_file_path
+  else
+    let l:file_name_ext = expand("%:t")
+    let l:current_file_name = substitute(l:file_name_ext, "." . l:ext, "", "")
+    let l:path_to_file_from_root = substitute(l:current_file_path, g:rescript_project_root, "", "")
+    let l:path_to_file_from_root = substitute(l:path_to_file_from_root, l:file_name_ext, "", "")
+
+    let l:bs_config = rescript#GetBsConfigContent()
+
+    let l:bs_config_namespace = 0
+    let l:bs_config_name = ""
+    let l:bs_project_prefix = ""
+
+    for [key, value] in items(l:bs_config)
+      if key ==# "name"
+        let l:bs_config_name = value
+      endif
+      if key ==# "namespace"
+        let l:bs_config_namespace = value
+      endif
+    endfor
+
+
+    if type(l:bs_config_namespace) == 6 && l:bs_config_namespace == 1
+          let l:bs_project_prefix = rescript#ToCamelCase(l:bs_config_name)
+    endif
+    if type(l:bs_config_namespace) == 1
+          let l:bs_project_prefix = rescript#ToCamelCase(l:bs_config_namespace)
+    endif
+
+    if l:bs_project_prefix !=# ""
+        let l:bs_project_prefix = "-" . l:bs_project_prefix
+    endif
+
+    let l:cmi_file_path = g:rescript_project_root . "/lib/bs" . l:path_to_file_from_root . l:current_file_name . l:bs_project_prefix . ".cmi"
+
+    let l:command = g:rescript_analysis_exe . " createInterface" . " " . l:current_file_path . " " . l:cmi_file_path
+
+    let l:out = system(l:command)
+
+    let l:out_json = []
+    try
+      let l:out_json = json_decode(l:out)
+      call writefile(split(l:out_json, "\n"), l:interface_file_path)
+      execute "e " . l:interface_file_path
+    catch /.*/
+      echo "Can't create interface file"
+      return
+    endtry
+  endif
+endfunction
+
+
+function! rescript#ToggleResAndResi()
+  call rescript#UpdateProjectEnv()
+
+  let l:ext = expand("%:e")
+
+  if matchstr(l:ext, 'resi\?') == ""
+    echo "Current buffer is not a .res / .resi file... Do nothing."
+    return
+  endif
+
+  let l:current_file_path = expand("%:p")
+
+  if l:ext ==# "res"
+    execute "e " . l:current_file_path . "i"
+    return
+  endif
+
+  let l:current_file_path = substitute(l:current_file_path, ".resi", ".res", "")
+  execute "e " . l:current_file_path
+endfunction
+
+function! rescript#OpenCompiledFile()
+  call rescript#UpdateProjectEnv()
+
+  let l:ext = expand("%:e")
+
+  if matchstr(l:ext, 'resi\?') == ""
+    echo "Current buffer is not a .res / .resi file... Do nothing."
+    return
+  endif
+
+  let l:current_file_path = expand("%:p")
+
+  let l:bs_config = rescript#GetBsConfigContent()
+  let l:compiled_file_exn = ".bs.js"
+
+  for [key, value] in items(l:bs_config)
+    if key ==# "suffix"
+      let l:compiled_file_exn = value
+    endif
+  endfor
+
+  let l:compiled_file_path = substitute(l:current_file_path, '\.resi\?', l:compiled_file_exn, "")
+
+  if !empty(expand(glob(l:compiled_file_path)))
+    execute "e " . l:compiled_file_path
+    return
+  endif
+
+  let l:file_name_ext = expand("%:t")
+  let l:current_file_name = substitute(l:file_name_ext, "." . l:ext, "", "")
+  let l:path_to_file_from_root = substitute(l:current_file_path, g:rescript_project_root, "", "")
+  let l:path_to_file_from_root = substitute(l:path_to_file_from_root, l:file_name_ext, "", "")
+
+  let l:compiled_file_path = g:rescript_project_root . "/lib/js" . l:path_to_file_from_root . l:current_file_name . l:compiled_file_exn
+
+  if !empty(expand(glob(l:compiled_file_path)))
+    execute "e " . l:compiled_file_path
+    return
+  endif
+
+  echo "Can't find compiled file"
+endfunction

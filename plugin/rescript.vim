@@ -14,5 +14,8 @@ command! RescriptTypeHint call rescript#TypeHint()
 command! RescriptInfo call rescript#Info()
 command! RescriptJumpToDefinition call rescript#JumpToDefinition()
 command! RescriptUpgradeFromReason call rescript#ReasonToRescript()
+command! RescriptCreateInterfaceFile call rescript#CreteIntfFile()
+command! RescriptToggleRESAndRESI call rescript#ToggleResAndResi()
+command! RescriptOpenCompiledFile call rescript#OpenCompiledFile()
 
 call rescript#Init()
