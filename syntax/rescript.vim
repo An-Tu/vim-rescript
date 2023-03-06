@@ -24,37 +24,38 @@ syntax keyword resType list array option ref exn format
 syntax keyword resOperator mod land lor lxor lsl lsr asr
 syntax keyword resOperator or
 
-syntax match resOperator "\v\="
 
-syntax match resOperator "\v\*"
-syntax match resOperator "\v/"
-syntax match resOperator "\v\+"
-syntax match resOperator "\v-"
+syntax match resOperatorLikeKw display "\v\="
 
-syntax match resOperator "\v\*\."
-syntax match resOperator "\v/\."
-syntax match resOperator "\v\+\."
-syntax match resOperator "\v-\."
+syntax match resOperatorLikeKw display "\v\*"
+syntax match resOperatorLikeKw display "\v/"
+syntax match resOperatorLikeKw display "\v\+"
+syntax match resOperatorLikeKw display "\v-"
 
-syntax match resOperator "\v\<"
-syntax match resOperator "\v\<\="
-syntax match resOperator "\v\>"
-syntax match resOperator "\v\>\="
+syntax match resOperatorLikeKw display "\v\*\."
+syntax match resOperatorLikeKw display "\v/\."
+syntax match resOperatorLikeKw display "\v\+\."
+syntax match resOperatorLikeKw display "\v-\."
 
-syntax match resOperator "\v\@"
+syntax match resOperatorLikeKw display "\v\<"
+syntax match resOperatorLikeKw display "\v\<\="
+syntax match resOperatorLikeKw display "\v\>"
+syntax match resOperatorLikeKw display "\v\>\="
 
-syntax match resOperator "\v\!"
-syntax match resOperator "\v\|"
-syntax match resOperator "\v\&"
+syntax match resOperatorLikeKw display "\v\@"
+
+syntax match resOperatorLikeKw display "\v\!"
+syntax match resOperatorLikeKw display "\v\|"
+syntax match resOperatorLikeKw display "\v\&"
 
 " Refs
 syntax match resOperator "\v\:\="
 
 " Arrows / Pipes
-syntax match resArrowPipe "\v\=\>"
-syntax match resArrowPipe "\v\-\>"
-syntax match resArrowPipe "\v\|\>"
-syntax match resArrowPipe "\v\@\@"
+syntax match resOperatorLikeKw display "\v\=\>"
+syntax match resOperatorLikeKw display "\v\-\>"
+syntax match resOperatorLikeKw display "\v\|\>"
+syntax match resOperatorLikeKw display "\v\@\@"
 
 " Comment
 syntax region resSingleLineComment start="//" end="$" contains=resTodo,@Spell
@@ -97,11 +98,13 @@ syntax match resPolyVariant "\v#[0-9]+"
 syntax match resPolyVariant "\v#\".*\""
 syntax match resPolyVariant "\v#\\\".*\""
 
+syntax region resTmp matchgroup=resKeyword start="\vlet " end="\v\=" contains=@sh
+
 highlight default link resBoolean Boolean
-highlight default link resKeyword Keyword
 highlight default link resType Type
+highlight default link resKeyword Keyword
+highlight default link resOperatorLikeKw Keyword
 highlight default link resOperator Operator
-highlight default link resArrowPipe Operator
 highlight default link resSingleLineComment Comment
 highlight default link resMultiLineComment Comment
 highlight default link resTodo TODO
@@ -118,5 +121,6 @@ highlight default link resString String
 highlight default link resInterpolationDelimiters Macro
 highlight default link resInterpolationVariable Macro
 highlight default link resAttribute PreProc
+highlight default link resTmp Identifier
 
 let b:current_syntax = "rescript"
